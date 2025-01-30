@@ -1,0 +1,124 @@
+import java.util.*;
+
+class Room {
+    String type;
+    int roomNumber;
+    double pricePerNight;
+    boolean isAvailable;
+
+    public Room(String type, int roomNumber, double pricePerNight) {
+        this.type = type;
+        this.roomNumber = roomNumber;
+        this.pricePerNight = pricePerNight;
+        this.isAvailable = true;
+    }
+
+    public void bookRoom() {
+        isAvailable = false;
+    }
+
+    public void cancelBooking() {
+        isAvailable = true;
+    }
+
+    @Override
+    public String toString() {
+        return "Room " + roomNumber + " (" + type + ") - Price per night: $" + pricePerNight + " - " + (isAvailable ? "Available" : "Booked");
+    }
+}
+
+class HotelReservationSystem {
+    List<Room> rooms = new ArrayList<>();
+    Map<Integer, String> bookings = new HashMap<>();
+
+    public HotelReservationSystem() {
+        // Initialize rooms (for simplicity)
+        rooms.add(new Room("Single", 101, 100));
+        rooms.add(new Room("Double", 102, 150));
+        rooms.add(new Room("Suite", 103, 250));
+        rooms.add(new Room("Single", 104, 100));
+    }
+
+    public void searchRooms(String type) {
+        for (Room room : rooms) {
+            if (room.type.equalsIgnoreCase(type) && room.isAvailable) {
+                System.out.println(room);
+            }
+        }
+    }
+
+    public boolean bookRoom(int roomNumber, String customerName) {
+        for (Room room : rooms) {
+            if (room.roomNumber == roomNumber && room.isAvailable) {
+                room.bookRoom();
+                bookings.put(roomNumber, customerName);
+                System.out.println("Booking successful for " + customerName + " in room " + roomNumber);
+                return true;
+            }
+        }
+        System.out.println("Room is not available.");
+        return false;
+    }
+
+    public void viewBooking(int roomNumber) {
+        if (bookings.containsKey(roomNumber)) {
+            System.out.println("Booking Details: " + roomNumber + " booked by " + bookings.get(roomNumber));
+        } else {
+            System.out.println("No booking found for room " + roomNumber);
+        }
+    }
+
+    public void cancelBooking(int roomNumber) {
+        if (bookings.containsKey(roomNumber)) {
+            bookings.remove(roomNumber);
+            for (Room room : rooms) {
+                if (room.roomNumber == roomNumber) {
+                    room.cancelBooking();
+                    System.out.println("Booking for room " + roomNumber + " has been canceled.");
+                }
+            }
+        } else {
+            System.out.println("No booking found for room " + roomNumber);
+        }
+    }
+
+    public boolean processPayment(double amount) {
+        // Simulate payment processing (in a real-world scenario, integrate a payment gateway)
+        System.out.println("Processing payment of $" + amount + "...");
+        return true; // Simulate successful payment
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        HotelReservationSystem hotelSystem = new HotelReservationSystem();
+        Scanner scanner = new Scanner(System.in);
+        
+        // Example: Searching for rooms and booking
+        System.out.println("Welcome to the Hotel Reservation System");
+        System.out.print("Enter room type to search (Single/Double/Suite): ");
+        String roomType = scanner.nextLine();
+        hotelSystem.searchRooms(roomType);
+        
+        System.out.print("Enter room number to book: ");
+        int roomNumber = scanner.nextInt();
+        scanner.nextLine();  // Consume newline
+        System.out.print("Enter your name: ");
+        String customerName = scanner.nextLine();
+        
+        // Simulating payment process
+        System.out.print("Enter payment amount for booking: ");
+        double paymentAmount = scanner.nextDouble();
+        if (hotelSystem.processPayment(paymentAmount)) {
+            hotelSystem.bookRoom(roomNumber, customerName);
+        }
+        
+        // View Booking
+        hotelSystem.viewBooking(roomNumber);
+        
+        // Cancel Booking
+        hotelSystem.cancelBooking(roomNumber);
+        
+        scanner.close();
+    }
+}
